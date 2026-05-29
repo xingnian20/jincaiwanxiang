@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>津彩万象 | 智慧文旅 · 计算机设计大赛</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loader">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">津彩万象 · 智慧文旅</div>
+</div>
+
+<div class="hero-dynamic">
+    <div class="container hero-flex">
+        <div class="hero-title">
+            <h1><i class="fas fa-city"></i> 津彩万象</h1>
+            <div class="sub">九河下梢 · 百年风华</div>
+            <div class="live-tips">
+                <div class="weather-tip clickable" onclick="showDressTipDetail()"><i class="fas fa-tshirt"></i> <span id="dressTip">加载天气...</span></div>
+                <div class="suggestion-tip clickable" onclick="showSuggestionDetail()"><i class="fas fa-lightbulb"></i> <span id="suggestionTip">智能贴士...</span></div>
+            </div>
+        </div>
+        <div class="search-card">
+            <div class="search-box">
+                <input type="text" id="globalSearchInput" placeholder="搜索景点、美食、非遗">
+                <button id="globalSearchBtn"><i class="fas fa-search"></i> 探寻</button>
+            </div>
+            <div class="nav-quick-access">
+                <button class="nav-quick-btn" onclick="openNavQuickDialog()"><i class="fas fa-location-arrow"></i> 导航去这儿</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <div class="container">
+        <div class="nav-links" id="navLinks">
+            <a data-filter="all" class="active">首页</a>
+            <a data-filter="scenic">景点</a>
+            <a data-filter="food">美食</a>
+            <a data-filter="intangible">非遗</a>
+            <a id="tripPlannerNav">路线规划</a>
+            <a id="randomPickNav">随机推荐</a>
+            <a id="quizNav">知识问答</a>
+        </div>
+    </div>
+</div>
+
+<main class="container">
+    <!-- 游客热度排行 - 首页置顶版本 -->
+    <section class="section" id="chartSectionTop">
+        <h2 class="section-title">📊 游客热度排行</h2>
+        <div class="data-viz-container">
+            <div class="viz-card" id="chartContainer"></div>
+            <div class="viz-card">
+                <h3>💡 数据说明</h3>
+                <div class="info-item"><div class="info-badge hot"></div> 热门(&gt;100万)</div>
+                <div class="info-item"><div class="info-badge warm"></div> 人气(50-100万)</div>
+                <div class="info-item"><div class="info-badge cool"></div> 特色(&lt;50万)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="scenicSection">
+        <h2 class="section-title">🏛️ 津门必游 · 景点</h2>
+        <div class="card-grid" id="scenicGrid"></div>
+    </section>
+
+    <section class="section" id="routeSection">
+        <h2 class="section-title">🗺️ 路线规划</h2>
+        
+        <!-- 智能行程规划 -->
+        <div class="planner-container">
+            <div class="planner-header">
+                <div class="planner-input-group">
+                    <label>游玩天数</label>
+                    <select id="tripDays">
+                        <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
+                    </select>
+                </div>
+                <div class="planner-input-group">
+                    <label>出行人群</label>
+                    <select id="tripCrowd">
+                        <option value="family">家庭亲子</option>
+                        <option value="couple">情侣出行</option>
+                        <option value="friends">朋友结伴</option>
+                        <option value="single">独自出行</option>
+                    </select>
+                </div>
+                <div class="planner-input-group">
+                    <label>消费类型</label>
+                    <select id="tripBudget">
+                        <option value="normal">正常游</option>
+                        <option value="budget">省钱游</option>
+                    </select>
+                </div>
+                <button class="planner-btn" id="generateTripBtn">✨ 生成智能行程</button>
+            </div>
+            <div id="tripResult"></div>
+        </div>
+        
+        <!-- 推荐路线 -->
+        <div class="route-container">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>经典一日游</h3>
+                <button class="dynamic-route-btn" id="refreshRouteBtn"><i class="fas fa-sync-alt"></i> 换路线</button>
+            </div>
+            <div id="routeStepsList" class="route-steps"></div>
+            <div id="weatherDetail" style="margin-top:1rem; background:#e9e1d2; padding:10px; border-radius:28px;"></div>
+        </div>
+    </section>
+
+    <section class="ai-recommend-section" id="aiRecommendSection">
+        <div class="ai-header">
+            <h3><i class="fas fa-brain"></i> AI 智慧推荐</h3>
+            <span id="aiSubtitle">基于时间与偏好</span>
+        </div>
+        <div class="ai-reason"><span id="aiReasonText"></span></div>
+        <div id="aiRecommendations" class="ai-recommendations"></div>
+    </section>
+
+    <section class="section" id="foodSection">
+        <h2 class="section-title">🍜 津味舌尖 · 美食</h2>
+        <div class="card-grid" id="foodGrid"></div>
+    </section>
+
+    <section class="section" id="intangibleSection">
+        <h2 class="section-title">🎭 津沽遗韵 · 非遗</h2>
+        <div class="card-grid" id="intangibleGrid"></div>
+    </section>
+
+    <!-- 游客热度排行 - 非首页显示版本 -->
+    <section class="section" id="chartSectionBottom">
+        <h2 class="section-title">📊 游客热度排行</h2>
+        <div class="data-viz-container">
+            <div class="viz-card" id="chartContainerBottom"></div>
+            <div class="viz-card">
+                <h3>💡 数据说明</h3>
+                <div class="info-item"><div class="info-badge hot"></div> 热门(&gt;100万)</div>
+                <div class="info-item"><div class="info-badge warm"></div> 人气(50-100万)</div>
+                <div class="info-item"><div class="info-badge cool"></div> 特色(&lt;50万)</div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div class="bottom-nav">
+    <div class="container bottom-nav-container">
+        <div class="nav-icons">
+            <a data-filter="all">首页</a>
+            <a data-filter="scenic">景点</a>
+            <a data-filter="food">美食</a>
+            <a data-filter="intangible">非遗</a>
+            <a data-filter="route">路线规划</a>
+            <a id="aboutFooter">关于我们</a>
+        </div>
+        <div>© 2026 津彩万象 | 智慧文旅</div>
+    </div>
+</div>
+
+<div class="back2top" id="back2top"><i class="fas fa-arrow-up"></i></div>
+
+<!-- 音乐播放器 -->
+<div class="music-player" id="musicPlayer">
+    <div class="music-toggle" id="musicToggle">
+        <i class="fas fa-music" id="musicIcon"></i>
+    </div>
+    <div class="music-info" id="musicInfo">
+        <span class="music-title">天津小曲 · 津韵悠扬</span>
+    </div>
+    <audio id="bgMusic" loop preload="auto" autoplay>
+        <source src="tianjinxiaoqu.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<!-- AI暖心助手按钮 -->
+<div class="ai-assistant-btn" id="aiBtn">
+    <i class="fas fa-comments"></i>
+    <span class="ai-btn-label">小暖</span>
+</div>
+
+<!-- AI暖心助手聊天窗口 -->
+<div class="ai-chat-window" id="aiWindow">
+    <div class="ai-chat-header">
+        <div class="ai-header-content">
+            <div class="ai-avatar">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="ai-header-info">
+                <h3>小暖助手</h3>
+                <span>永远守护你 ✨</span>
+            </div>
+        </div>
+        <button class="ai-close-btn" id="aiClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="ai-chat-messages" id="aiMessages">
+        <div class="ai-message ai">
+            你好呀！我是小暖，很高兴认识你 💖 今天感觉怎么样呢？
+        </div>
+    </div>
+    <div class="ai-quick-actions">
+        <button class="ai-quick-btn" onclick="aiQuickReply('开心')">今天很开心！</button>
+        <button class="ai-quick-btn" onclick="aiQuickReply('累')">有点累了...</button>
+        <button class="ai-quick-btn" onclick="aiQuickReply('推荐')">推荐景点</button>
+        <button class="ai-quick-btn" onclick="aiQuickReply('笑话')">讲个笑话</button>
+        <button class="ai-quick-btn" onclick="aiQuickReply('百科')">了解天津</button>
+    </div>
+    <div class="ai-chat-input">
+        <input type="text" class="ai-input" id="aiInput" placeholder="和小暖说说话吧...">
+        <button class="ai-send-btn" id="aiSend">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<div class="settings-btn" id="settingsBtn"><i class="fas fa-cog"></i></div>
+<div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">显示设置</div>
+    <div>
+        <div>主题模式</div>
+        <div><span data-theme="light">☀️ 浅色</span> <span data-theme="dark">🌙 黑暗</span></div>
+        <div>四季主题</div>
+        <div class="season-selector">
+            <span class="season-opt spring" data-season="spring" title="春季">🌸 春</span>
+            <span class="season-opt summer" data-season="summer" title="夏季">☀️ 夏</span>
+            <span class="season-opt autumn" data-season="autumn" title="秋季">🍂 秋</span>
+            <span class="season-opt winter" data-season="winter" title="冬季">❄️ 冬</span>
+        </div>
+        <div>字体大小</div>
+        <div><span data-font="sm">小</span> <span data-font="md">中</span> <span data-font="lg">大</span></div>
+    </div>
+</div>
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeDetailModal">&times;</span>
+        <div id="modalImg" style="height:200px; background-size:cover; background-position:center;"></div>
+        <div class="modal-body">
+            <h2 id="modalTitle"></h2>
+            <p id="modalDesc"></p>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button id="audioPlayBtn" class="audio-btn"><i class="fas fa-volume-up"></i> 听讲解</button>
+                <button id="navBtn" class="nav-btn"><i class="fas fa-navigation"></i> 导航</button>
+            </div>
+            <div id="subtitleArea" style="display:none; margin-top:15px; padding:15px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:12px; color:white; font-size:1rem; text-align:center; line-height:1.6; min-height:50px;">
+                <span id="subtitleText"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeAboutModalBtn">&times;</span>
+        <div class="modal-body">
+            <h2>关于津彩万象</h2>
+            <p>智慧文旅平台，提供天津景点、美食、非遗一站式服务，AI智能推荐，语音讲解，行程规划，让旅行更智慧。</p>
+        </div>
+    </div>
+</div>
+<!-- 穿衣建议详情模态框 -->
+<div id="dressDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDressModal()">&times;</span>
+        <div class="modal-body" style="text-align:center;">
+            <div style="font-size:4rem; margin-bottom:15px;">👕</div>
+            <h2>�️ 当前天气状况</h2>
+            <div id="dressTempDisplay" style="font-size:2.5rem; font-weight:bold; color:#ff6b6b; margin:15px 0;">
+                加载中...
+            </div>
+            <div id="dressWeatherIcon" style="font-size:3rem; margin-bottom:15px;">🌤️</div>
+            <h3 style="margin-top:20px; color:#333;">👔 穿衣建议</h3>
+            <p style="text-align:left; margin-top:15px; line-height:1.8;">
+                根据当前气温，建议穿着：
+            </p>
+            <ul id="dressRecommendations" style="text-align:left; line-height:1.8; margin-top:10px;">
+            </ul>
+            <p style="text-align:left; margin-top:15px; line-height:1.8;">
+                <strong>小贴士：</strong>天津夏季雨水较多，建议随身携带折叠伞。早晚温差较小，一件薄外套足够。
+            </p>
+        </div>
+    </div>
+</div>
+<!-- 旅行建议详情模态框 -->
+<div id="suggestionDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeSuggestionModal()">&times;</span>
+        <div class="modal-body" style="text-align:center;">
+            <div style="font-size:4rem; margin-bottom:15px;">✨</div>
+            <h2>🚤 推荐海河夜游</h2>
+            <p style="text-align:left; margin-top:15px; line-height:1.8;">
+                海河是天津的母亲河，夜晚的海河两岸灯火辉煌，美不胜收！
+            </p>
+            <ul style="text-align:left; line-height:1.8; margin-top:10px;">
+                <li>🌆 <strong>推荐时间</strong>：19:00-21:30</li>
+                <li>🚢 <strong>乘船地点</strong>：天津站码头、古文化街码头</li>
+                <li>⏱️ <strong>游览时长</strong>：约1小时</li>
+                <li>💰 <strong>票价参考</strong>：约100元/人</li>
+                <li>🏙️ <strong>途经景点</strong>：天津之眼、解放桥、津湾广场、世纪钟</li>
+            </ul>
+            <p style="text-align:left; margin-top:15px; line-height:1.8;">
+                <strong>小贴士：</strong>建议提前购票，夏季夜游人气很高。可以选择露天座位，感受微风拂面的惬意。
+            </p>
+        </div>
+    </div>
+</div>
+<div id="navModal" class="modal">
+    <div class="modal-content" style="max-width:320px;">
+        <span class="close-modal" onclick="document.getElementById('navModal').style.display='none'">&times;</span>
+        <div class="modal-body">
+            <h2 style="text-align:center; margin-bottom:20px;">选择导航地图</h2>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <button onclick="selectMap('amap')" class="map-btn amap-btn">
+                    <i class="fas fa-map-marker-alt"></i> 高德地图
+                </button>
+                <button onclick="selectMap('baidu')" class="map-btn baidu-btn">
+                    <i class="fas fa-map-pin"></i> 百度地图
+                </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
+<!--AI辅助生成：DeeepSeek-v3，2026.4.29-->
+<!--AI辅助删除部分代码：DeepSeek-v3,2026.5.28-->
